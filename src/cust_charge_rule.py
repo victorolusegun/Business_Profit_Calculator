@@ -1,5 +1,4 @@
 class WithdrawalRule:
-    print('WithdrawalRule class initialized')
     def __init__(self):
         pass
 
