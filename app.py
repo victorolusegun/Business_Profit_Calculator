@@ -1,6 +1,9 @@
 from parser import parser
+from parser import filter_transactions
 
 print('Welcome to the Python app!')
-file_path = input('Enter the bank statement: \n')
+file_path = input('Enter the file path for the bank statement: \n')
 file_path = file_path.strip('"')  # Remove any surrounding quotes from the input
-parser(file_path)
+v1 = parser(file_path)
+filter_transactions(v1)
+print('Transactions have been filtered and saved to output.csv')
