@@ -10,3 +10,4 @@ data/raw/*.pdf
 data/processed/*.pdf
 *.csv
 trial.py
+*.ipynb

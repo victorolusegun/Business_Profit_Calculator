@@ -7,7 +7,10 @@ def filter_transactions(table):
             line_list = page.split('\n')
             for line in line_list:
                 single_line = line.split()
-                rule1 = single_line[0]
+                try:
+                    rule1 = single_line[0]
+                except IndexError:
+                    continue
                 format = '%Y/%m/%d'
                 try:
                     v_rule1 = datetime.strptime(rule1, format)
