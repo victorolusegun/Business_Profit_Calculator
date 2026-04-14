@@ -1,5 +1,4 @@
 import pdfplumber
-from datetime import datetime
 
 def parser(file_path):
     try:
