@@ -8,6 +8,7 @@ print('Welcome to the Python app!')
 # Assign file path for the processed .csv file
 pro_path = r"C:\Users\hp\Desktop\Restart\POS Profit Calculator\data\processed\output.csv"
 
+#       PARSING, FILTERING & WRANGLING OF DATA
 if os.path.exists(pro_path) is False:
 # Receive file path input from the user and remove any surrounding quotes from input
     file_path = input('Enter the file path for the bank statement: \n')
@@ -22,4 +23,6 @@ if os.path.exists(pro_path) is False:
     main = load_dataframe(pro_path)
     main = convert_dtypes(main)
 else:
-    print("File already exists.")
+    print("Processed file already exists. Please check the output.csv file in the processed folder.")
+
+#       NEXT STEP
