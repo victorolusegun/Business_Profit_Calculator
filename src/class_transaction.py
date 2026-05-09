@@ -7,9 +7,11 @@ class Transaction:
         self.balance = balance
 
     def classification(self):
-        if self.amount < 0:
-            return 'Transfer'
-        elif 0 < self.amount <= 500:
-            return 'Bill Payment'
-        else:
+        if self.ref_id[-5:] == '12201':
             return 'Withdrawal'
+        elif self.ref_id[-5:] == '16101':
+            return 'Airtime'
+        elif self.ref_id[-5:] == '04101':
+            return 'Transfer'
+        else:
+            return 'Others'
