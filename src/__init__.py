@@ -1,2 +1,3 @@
 from .cust_charge_rule import *
-from .class_transaction import Transaction
+from .transaction import Transaction
+from .classification import ClassTransaction
