@@ -27,6 +27,24 @@ else:
 main = load_dataframe(pro_path)
 main = convert_dtypes(main)
 
+#       VERIFY CHARGED TRANSACTIONS THROUGH USER INPUT
+response = ['yes', 'no']
+num_charged = input('Were all transactions charged?')
+try:
+    num_charged = num_charged.lower()
+except ValueError:
+    print('Choosing default answer; no')
+default = 'no'
+counter = 0
+while num_charged not in response or counter >= 3:
+    num_charged = input('Answer yes or no')
+    counter += 1
+if num_charged == 'yes':
+    print('You will be asked to input the transaction time and amount')
+    pass
+else:
+    pass
+
 #       MAKE EACH TRANSACTION AN OBJECT OF THE CLASS TRANSACTION AND PERFORMING OPERATIONS ON THE OBJECTS
 transaction = [Transaction(*row) for row in main.itertuples(index = False)]
 class_txt = []
