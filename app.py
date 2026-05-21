@@ -73,8 +73,6 @@ if num_charged == 'yes':
         print(vis_samples.head(len(vis_samples)))
     else:
         print('No transactions found matching that amount. Please check your input and try again or enter END to proceed.')
-        while len(tx_samples) == 0:
-            price = input('Enter amount of transaction ')
 else:
     pass
 
