@@ -15,3 +15,6 @@ class Transaction:
             return 'Transfer'
         else:
             return 'Others'
+        
+    def rounding(self):
+        return round(self.amount, -2)

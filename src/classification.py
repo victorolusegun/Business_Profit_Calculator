@@ -1,11 +1,12 @@
 class ClassTransaction:
-    def __init__(self, date, time, ref_id, amount, balance, tx_type):
+    def __init__(self, date, time, ref_id, amount, balance, tx_type, rnd_amt):
         self.date = date
         self.time = time
         self.ref_id = ref_id
         self.amount = amount
         self.balance = balance
         self.tx_type = tx_type
+        self.rnd_amt = rnd_amt
 
     def agent_charge(self):
         if self.tx_type == 'Withdrawal':

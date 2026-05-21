@@ -26,14 +26,21 @@ else:
 # Load the processed .csv file into a DataFrame and convert data types
 main = load_dataframe(pro_path)
 main = convert_dtypes(main)
+
 #       MAKE EACH TRANSACTION AN OBJECT OF THE CLASS TRANSACTION AND PERFORMING OPERATIONS ON THE OBJECTS
 transaction = [Transaction(*row) for row in main.itertuples(index = False)]
 class_txt = []
+rnd_amt = []
 for row in transaction:
     class_txt.append(row.classification())
 # Add the classifications to the DataFrame as a new column
 main['Transaction_Type'] = class_txt
 
+#       ROUNDING AMOUNT TO AID ESTIMATION
+for row in transaction:
+    rnd_amt.append(row.rounding())
+# Add to DataFrame (main)
+main['rnd_amt'] = rnd_amt
 #       VERIFY CHARGED TRANSACTIONS THROUGH USER INPUT
 # Initialise list containing available responses and variable to store user input
 response = ['yes', 'no']
@@ -52,19 +59,22 @@ if num_charged == 'yes':
         try:
             price = input('Input amount of transaction not charged: \n')
             price = float(price)
+            neg_price = -1 * price
             break
         except ValueError:
             print('Invalid input. Please enter a valid number.')
         if price.lower() == 'exit':
             print('Exiting application......')
             exit()
-    tx_samples = main.query('Amount == @price')
+# Query the DataFrame for transactions matching the input amount and display the relevant information. If no transactions are found, prompt user to check input and try again.
+    tx_samples = main.query('rnd_amt == @price or rnd_amt == @neg_price')
     if len(tx_samples) != 0:
         vis_samples = tx_samples[['Date', 'Time', 'Amount', 'Transaction_Type']]
-        vis_samples.head(len(vis_samples))
+        print(vis_samples.head(len(vis_samples)))
     else:
-        print('No transactions found matching that amount. Please check your input and try again.')
-        pass
+        print('No transactions found matching that amount. Please check your input and try again or enter END to proceed.')
+        while len(tx_samples) == 0:
+            price = input('Enter amount of transaction ')
 else:
     pass
 
