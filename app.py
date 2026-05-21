@@ -18,7 +18,7 @@ if os.path.exists(pro_path) is False:
     # Processing & Parsing the PDF file, filtering transactions and saving to .csv file
     v1 = parser(file_path)
     filter_transactions(v1)
-    print('Transactions have been filtered and saved to output.csv')
+    print('Parsing and filtering successful')
 else:
     pass
 
@@ -26,25 +26,6 @@ else:
 # Load the processed .csv file into a DataFrame and convert data types
 main = load_dataframe(pro_path)
 main = convert_dtypes(main)
-
-#       VERIFY CHARGED TRANSACTIONS THROUGH USER INPUT
-response = ['yes', 'no']
-num_charged = input('Were all transactions charged?')
-try:
-    num_charged = num_charged.lower()
-except ValueError:
-    print('Choosing default answer; no')
-default = 'no'
-counter = 0
-while num_charged not in response or counter >= 3:
-    num_charged = input('Answer yes or no')
-    counter += 1
-if num_charged == 'yes':
-    print('You will be asked to input the transaction time and amount')
-    pass
-else:
-    pass
-
 #       MAKE EACH TRANSACTION AN OBJECT OF THE CLASS TRANSACTION AND PERFORMING OPERATIONS ON THE OBJECTS
 transaction = [Transaction(*row) for row in main.itertuples(index = False)]
 class_txt = []
@@ -53,7 +34,41 @@ for row in transaction:
 # Add the classifications to the DataFrame as a new column
 main['Transaction_Type'] = class_txt
 
-#       CALCULATE PROFIT PER TRANSACTION & OPERATOR CHARGE
+#       VERIFY CHARGED TRANSACTIONS THROUGH USER INPUT
+# Initialise list containing available responses and variable to store user input
+response = ['yes', 'no']
+num_charged = ''
+# Receive user input and loop until valid response is received. User can exit by typing 'exit
+while num_charged not in response:
+    print('Answer YES or NO to proceed or enter EXIT to quit the app')
+    num_charged = input('Would you like to verify the transactions you charged fees for? \n')
+    num_charged = num_charged.lower()
+    if num_charged == 'exit':
+        print('Exiting application......')
+        exit()
+# If user answers yes, receive input for the amount of the transaction not charged and display the transactions that match the input amount. If user answers no, skip to profit calculation.
+if num_charged == 'yes':
+    while True:
+        try:
+            price = input('Input amount of transaction not charged: \n')
+            price = float(price)
+            break
+        except ValueError:
+            print('Invalid input. Please enter a valid number.')
+        if price.lower() == 'exit':
+            print('Exiting application......')
+            exit()
+    tx_samples = main.query('Amount == @price')
+    if len(tx_samples) != 0:
+        vis_samples = tx_samples[['Date', 'Time', 'Amount', 'Transaction_Type']]
+        vis_samples.head(len(vis_samples))
+    else:
+        print('No transactions found matching that amount. Please check your input and try again.')
+        pass
+else:
+    pass
+
+#       CALCULATIONS
 # Profit per transaction
 transaction = [ClassTransaction(*row) for row in main.itertuples(index = False)]
 profit_txt = []
@@ -65,7 +80,6 @@ for row in transaction:
 for row in transaction:
     operator_charge.append(row.service_charge())
 
-#       CALCULATE TOTAL PROFIT
 # Agent fee
 fee = sum(profit_txt)
 print(f'You charged fees totalling: {fee}')

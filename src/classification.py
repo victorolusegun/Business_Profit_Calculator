@@ -36,6 +36,8 @@ class ClassTransaction:
                 service_cost = (round(self.amount, -2) * 0.5) / 100
         elif self.tx_type == 'Transfer':
             service_cost = 20
+            if self.amount >= 10000:
+                service_cost += 50
         else:
             service_cost = 0
         return round(service_cost, 2)
