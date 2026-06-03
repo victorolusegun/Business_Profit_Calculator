@@ -75,7 +75,7 @@ if st.session_state['main_df'] is not None and st.session_state['uncharged'] is 
     if st.session_state['calc_df'] is None:
         st.session_state['main_df']['txn_type'] = class_txt
         st.session_state['calc_df'] = st.session_state['main_df']
-    st.write(st.session_state['main_df'])
+    st.write(st.session_state['calc_df'])
 
 #               CALCULATIONS
 if st.session_state['calc_df'] is not None:
@@ -97,13 +97,13 @@ if st.session_state['uncharged'] is False:
     st.write('### Calculations')
 # Amount you charged customer
     if st.button('Show Agent Fee'):
-        st.session_state['charge'] = agent_profit
+        # st.session_state['charge'] = agent_profit
         st.write(f'Agent Profit: ₦{agent_profit:.2f}')
 # Amount the operator charged you
     if st.button('Show Operator Fee'):
-        st.session_state['charged'] = operator_fee
+        # st.session_state['charged'] = operator_fee
         st.write(f'Operator Fee: ₦{operator_fee:.2f}')
 # Net profit
     if st.button('Show Net Profit'):
-        st.session_state['profit'] = profit
+        # st.session_state['profit'] = profit
         st.write(f'Net Profit: ₦{profit:.2f}')
