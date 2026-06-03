@@ -12,6 +12,8 @@ pro_path = r"C:\Users\hp\Desktop\Restart\POS Profit Calculator\data\processed\ou
 #               SESSION STATE VARIABLES
 if 'txn_state' not in st.session_state:
     st.session_state['txn_state'] = False
+if 'file_path' not in st.session_state:
+    st.session_state['file_path'] = None
 if 'main_df' not in st.session_state:
     st.session_state['main_df'] = None
 if 'calc_df' not in st.session_state:
@@ -31,18 +33,19 @@ st.write('# Agent Profit_Calc')
 #               FILE UPLOAD, DATA PREP AND DISPLAY
 if st.session_state['txn_state'] is False:
     file_path = st.file_uploader('Upload your account statement for today (PDF format only)', type='pdf')
+    st.session_state['file_path'] = file_path
 if st.button('Generate Transaction List'):
     st.session_state['txn_state'] = True
 if st.session_state['txn_state'] is True:
-    try:
-        v1 = parser(file_path)
+    if st.session_state['file_path'] is not None:
+        v1 = parser(st.session_state['file_path'])
         filtered_transactions = filter_transactions(v1)
         main = dataframe(filtered_transactions)
         main = convert_dtypes(main)
         st.session_state['main_df'] = main
         st.write(st.session_state['main_df'])
-    except NameError:
-        st.write('Please upload a file to generate the transaction list.')
+if st.session_state['file_path'] is None:
+    st.write('Please upload a file to generate the transaction list.')
 
 #               FILTERING OUT UNCHARGED TRANSACTIONS WITH USER ASSISTANCE
 st.write('### Verify Uncharged Transactions')
