@@ -1,2 +1,2 @@
-from .dataframe import load_dataframe
+from .dataframe import dataframe
 from .conversion import convert_dtypes

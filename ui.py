@@ -1,5 +1,4 @@
 from datetime import datetime
-import os
 import streamlit as st
 from parser import *
 from src import Transaction, ClassTransaction
@@ -30,27 +29,20 @@ if 'profit' not in st.session_state:
 st.write('# Agent Profit_Calc')
 
 #               FILE UPLOAD, DATA PREP AND DISPLAY
-if os.path.exists(pro_path) is True:
+if st.session_state['txn_state'] is False:
+    file_path = st.file_uploader('Upload your account statement for today (PDF format only)', type='pdf')
+if st.button('Generate Transaction List'):
     st.session_state['txn_state'] = True
-    main = load_dataframe(pro_path)
-    main = convert_dtypes(main)
-    st.session_state['main_df'] = main
-    st.write(st.session_state['main_df'])
-else:
-    if st.session_state['txn_state'] is False:
-        file_path = st.file_uploader('Upload your account statement for today (PDF format only)', type='pdf')
-    if st.button('Generate Transaction List'):
-        st.session_state['txn_state'] = True
-    if st.session_state['txn_state'] is True:
-        try:
-            v1 = parser(file_path)
-            filter_transactions(v1)
-            main = load_dataframe(pro_path)
-            main = convert_dtypes(main)
-            st.session_state['main_df'] = main
-            st.write(st.session_state['main_df'])
-        except NameError:
-            st.write('Please upload a file to generate the transaction list.')
+if st.session_state['txn_state'] is True:
+    try:
+        v1 = parser(file_path)
+        filtered_transactions = filter_transactions(v1)
+        main = dataframe(filtered_transactions)
+        main = convert_dtypes(main)
+        st.session_state['main_df'] = main
+        st.write(st.session_state['main_df'])
+    except NameError:
+        st.write('Please upload a file to generate the transaction list.')
 
 #               FILTERING OUT UNCHARGED TRANSACTIONS WITH USER ASSISTANCE
 st.write('### Verify Uncharged Transactions')
@@ -89,11 +81,10 @@ if st.session_state['calc_df'] is not None:
     operator_charge = []
     for row in calc_transactions:
         profit_txt.append(row.agent_charge())
-
-    # Service charge by operator
+# Service charge by operator
     for row in calc_transactions:
         operator_charge.append(row.service_charge())
-
+# Calculations
     agent_profit = sum(profit_txt)
     operator_fee = sum(operator_charge)
     profit = agent_profit - operator_fee
@@ -101,12 +92,15 @@ if st.session_state['calc_df'] is not None:
 #               DISPLAY CALCULATIONS
 if st.session_state['uncharged'] is False:
     st.write('### Calculations')
+# Amount you charged customer
     if st.button('Show Agent Fee'):
         st.session_state['charge'] = agent_profit
         st.write(f'Agent Profit: ₦{agent_profit:.2f}')
+# Amount the operator charged you
     if st.button('Show Operator Fee'):
         st.session_state['charged'] = operator_fee
         st.write(f'Operator Fee: ₦{operator_fee:.2f}')
+# Net profit
     if st.button('Show Net Profit'):
         st.session_state['profit'] = profit
         st.write(f'Net Profit: ₦{profit:.2f}')

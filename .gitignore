@@ -6,8 +6,7 @@ venv/
 *.log
 .DS_Store
 Thumbs.db
-data/raw/*.pdf
-data/processed/*.pdf
 *.csv
 trial.py
 *.ipynb
+data
