@@ -53,30 +53,13 @@ if st.session_state['working_df'] is not None:
     st.session_state['calc_df'] = st.session_state['working_df']
 
 #               FILTERING OUT UNCHARGED TRANSACTIONS WITH USER ASSISTANCE
-txns = ['Withdrawal', 'Transfer', 'Others']
-
 st.write('### Verify Uncharged Transactions')
 option = st.radio('Are there any uncharged transactions in the list above?', ('Yes', 'No'))
 if option == 'Yes' and st.session_state['calc_df'] is not None:
     chosen_time = st.selectbox('Select the time period the uncharged transaction occured:', [x for x in range(24)])
-    st.write('-----------------------------or--------------------------------')
-    txn_type = st.selectbox('Select transaction type:', [type for type in txns])
-    st.write('Airtime is automatically uncharged')
-    if chosen_time is not None and txn_type is not None:
-        st.write(st.session_state['calc_df'][(st.session_state['calc_df']['Time'].apply(lambda t: t.hour == chosen_time)) & (st.session_state['calc_df']['txn_type'] == txn_type)])
-        pot_uncharged_txn = [i for i in st.session_state['calc_df'][(st.session_state['calc_df']['Time'].apply(lambda t: t.hour == chosen_time)) & (st.session_state['calc_df']['txn_type'] == txn_type)].index]
-        uncharged_txn = st.multiselect('Select the uncharged transactions:', pot_uncharged_txn)
-        if uncharged_txn:
-            st.session_state['calc_df'] = st.session_state['working_df'].drop(index = uncharged_txn)
-    elif chosen_time is not None:
+    if chosen_time is not None:
         st.write(st.session_state['calc_df'][st.session_state['calc_df']['Time'].apply(lambda t: t.hour == chosen_time)])
         pot_uncharged_txn = [i for i in st.session_state['calc_df'][st.session_state['calc_df']['Time'].apply(lambda t: t.hour == chosen_time)].index]
-        uncharged_txn = st.multiselect('Select the uncharged transactions:', pot_uncharged_txn)
-        if uncharged_txn:
-            st.session_state['calc_df'] = st.session_state['working_df'].drop(index = uncharged_txn)
-    elif txn_type is not None:
-        st.write(st.session_state['calc_df'][st.session_state['calc_df']['txn_type'] == txn_type])
-        pot_uncharged_txn = [i for i in st.session_state['calc_df'][st.session_state['calc_df']['txn_type'] == txn_type].index]
         uncharged_txn = st.multiselect('Select the uncharged transactions:', pot_uncharged_txn)
         if uncharged_txn:
             st.session_state['calc_df'] = st.session_state['working_df'].drop(index = uncharged_txn)
