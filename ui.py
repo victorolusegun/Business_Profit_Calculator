@@ -16,17 +16,12 @@ if 'file_path' not in st.session_state:
     st.session_state['file_path'] = None
 if 'main_df' not in st.session_state:
     st.session_state['main_df'] = None
+if 'working_df' not in st.session_state:
+    st.session_state['working_df'] = None
 if 'calc_df' not in st.session_state:
     st.session_state['calc_df'] = None
-if 'uncharged' not in st.session_state:
-    st.session_state['uncharged'] = None
-if 'charge' not in st.session_state:
-    st.session_state['charge'] = None
-if 'charged' not in st.session_state:
-    st.session_state['charged'] = None
-if 'profit' not in st.session_state:
-    st.session_state['profit'] = None
-
+if 'calc_started' not in st.session_state:
+    st.session_state['calc_started'] = False
 #               HEADER
 st.write('# Agent Profit_Calc')
 
@@ -43,39 +38,55 @@ if st.session_state['txn_state'] is True:
         main = dataframe(filtered_transactions)
         main = convert_dtypes(main)
         st.session_state['main_df'] = main
+        st.session_state['working_df'] = main
         st.write(st.session_state['main_df'])
 if st.session_state['file_path'] is None:
     st.write('Please upload a file to generate the transaction list.')
 
-#               FILTERING OUT UNCHARGED TRANSACTIONS WITH USER ASSISTANCE
-st.write('### Verify Uncharged Transactions')
-if st.button('YES'):
-    st.session_state['uncharged'] = True
-if st.button('NO'):
-    st.session_state['uncharged'] = False
-
-if st.session_state['uncharged'] is True:
-    chosen_time = st.selectbox('Select the time period the uncharged transaction occured:', [x for x in range(24)])
-    if chosen_time is not None:
-        st.write(st.session_state['main_df'][st.session_state['main_df']['Time'].apply(lambda t: t.hour == chosen_time)])
-        pot_uncharged_txn = [i for i in st.session_state['main_df'][st.session_state['main_df']['Time'].apply(lambda t: t.hour == chosen_time)].index]
-        uncharged_txn = st.multiselect('Select the uncharged transactions:', pot_uncharged_txn)
-        if uncharged_txn:
-            st.session_state['main_df'].drop(index = uncharged_txn, inplace = True)
-    st.write('Click the button below to proceed')
-    if st.button('Start Calculations'):
-        st.session_state['uncharged'] = False
-
 #               TRANSACTIONS BEING OBJECTS OF CLASSES
-if st.session_state['main_df'] is not None and st.session_state['uncharged'] is False:
-    transactions = [Transaction(*row) for row in st.session_state['main_df'].itertuples(index = False)]
+if st.session_state['working_df'] is not None:
+    transactions = [Transaction(*row) for row in st.session_state['working_df'].itertuples(index = False)]
     class_txt = []
     for row in transactions:
         class_txt.append(row.classification())
-    if st.session_state['calc_df'] is None:
-        st.session_state['main_df']['txn_type'] = class_txt
-        st.session_state['calc_df'] = st.session_state['main_df']
-    st.write(st.session_state['calc_df'])
+    st.session_state['working_df']['txn_type'] = class_txt
+    st.session_state['calc_df'] = st.session_state['working_df']
+
+#               FILTERING OUT UNCHARGED TRANSACTIONS WITH USER ASSISTANCE
+txns = ['Withdrawal', 'Transfer', 'Others']
+
+st.write('### Verify Uncharged Transactions')
+option = st.radio('Are there any uncharged transactions in the list above?', ('Yes', 'No'))
+if option == 'Yes' and st.session_state['calc_df'] is not None:
+    chosen_time = st.selectbox('Select the time period the uncharged transaction occured:', [x for x in range(24)])
+    st.write('-----------------------------or--------------------------------')
+    txn_type = st.selectbox('Select transaction type:', [type for type in txns])
+    st.write('Airtime is automatically uncharged')
+    if chosen_time is not None and txn_type is not None:
+        st.write(st.session_state['calc_df'][(st.session_state['calc_df']['Time'].apply(lambda t: t.hour == chosen_time)) & (st.session_state['calc_df']['txn_type'] == txn_type)])
+        pot_uncharged_txn = [i for i in st.session_state['calc_df'][(st.session_state['calc_df']['Time'].apply(lambda t: t.hour == chosen_time)) & (st.session_state['calc_df']['txn_type'] == txn_type)].index]
+        uncharged_txn = st.multiselect('Select the uncharged transactions:', pot_uncharged_txn)
+        if uncharged_txn:
+            st.session_state['calc_df'] = st.session_state['working_df'].drop(index = uncharged_txn)
+    elif chosen_time is not None:
+        st.write(st.session_state['calc_df'][st.session_state['calc_df']['Time'].apply(lambda t: t.hour == chosen_time)])
+        pot_uncharged_txn = [i for i in st.session_state['calc_df'][st.session_state['calc_df']['Time'].apply(lambda t: t.hour == chosen_time)].index]
+        uncharged_txn = st.multiselect('Select the uncharged transactions:', pot_uncharged_txn)
+        if uncharged_txn:
+            st.session_state['calc_df'] = st.session_state['working_df'].drop(index = uncharged_txn)
+    elif txn_type is not None:
+        st.write(st.session_state['calc_df'][st.session_state['calc_df']['txn_type'] == txn_type])
+        pot_uncharged_txn = [i for i in st.session_state['calc_df'][st.session_state['calc_df']['txn_type'] == txn_type].index]
+        uncharged_txn = st.multiselect('Select the uncharged transactions:', pot_uncharged_txn)
+        if uncharged_txn:
+            st.session_state['calc_df'] = st.session_state['working_df'].drop(index = uncharged_txn)
+    st.write('Click the button below to proceed')
+    if st.button('Start Calculations'):
+        st.session_state['calc_started'] = True
+elif option == 'No' and st.session_state['calc_df'] is not None:
+    st.session_state['calc_df'] = st.session_state['main_df'].copy()
+    st.session_state['calc_started'] = True
+
 
 #               CALCULATIONS
 if st.session_state['calc_df'] is not None:
@@ -93,17 +104,14 @@ if st.session_state['calc_df'] is not None:
     profit = agent_profit - operator_fee
 
 #               DISPLAY CALCULATIONS
-if st.session_state['uncharged'] is False:
+if st.session_state['calc_started'] is True:
     st.write('### Calculations')
 # Amount you charged customer
     if st.button('Show Agent Fee'):
-        # st.session_state['charge'] = agent_profit
         st.write(f'Agent Profit: ₦{agent_profit:.2f}')
 # Amount the operator charged you
     if st.button('Show Operator Fee'):
-        # st.session_state['charged'] = operator_fee
         st.write(f'Operator Fee: ₦{operator_fee:.2f}')
 # Net profit
     if st.button('Show Net Profit'):
-        # st.session_state['profit'] = profit
         st.write(f'Net Profit: ₦{profit:.2f}')
