@@ -1,2 +1,1 @@
-from .transaction import Transaction
-from .classification import ClassTransaction
+from .transaction import Transaction, Class_Transaction

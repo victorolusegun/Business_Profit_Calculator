@@ -1,6 +1,6 @@
 from datetime import datetime
 
-def filter_transactions(table):
+def filter_txn(table):
     dataframe = []
     for page in table:
         line_list = page.split('\n')

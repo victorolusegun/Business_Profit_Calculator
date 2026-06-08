@@ -1,6 +1,6 @@
 import pdfplumber
 
-def parser(file_path):
+def ppay_parser(file_path):
     with pdfplumber.open(file_path) as pdf:
         pages = []
         for page in pdf.pages:

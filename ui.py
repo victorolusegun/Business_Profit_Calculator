@@ -1,13 +1,11 @@
 from datetime import datetime
 import streamlit as st
-from parser import *
-from src import Transaction, ClassTransaction
+from op_parser import ppay_parser, filter_txn
+from src import Transaction, Class_Transaction
 from wrangler import *
 
 #               APP CONFIGURATION
 st.set_page_config(page_title='POS Profit Calculator', page_icon=':money_with_wings:')
-
-pro_path = r"C:\Users\hp\Desktop\Restart\POS Profit Calculator\data\processed\output.csv"
 
 #               SESSION STATE VARIABLES
 if 'txn_state' not in st.session_state:
@@ -22,6 +20,7 @@ if 'calc_df' not in st.session_state:
     st.session_state['calc_df'] = None
 if 'calc_started' not in st.session_state:
     st.session_state['calc_started'] = False
+
 #               HEADER
 st.write('# Agent Profit_Calc')
 
@@ -33,8 +32,8 @@ if st.button('Generate Transaction List'):
     st.session_state['txn_state'] = True
 if st.session_state['txn_state'] is True:
     if st.session_state['file_path'] is not None:
-        v1 = parser(st.session_state['file_path'])
-        filtered_transactions = filter_transactions(v1)
+        v1 = ppay_parser(st.session_state['file_path'])
+        filtered_transactions = filter_txn(v1)
         main = dataframe(filtered_transactions)
         main = convert_dtypes(main)
         st.session_state['main_df'] = main
@@ -73,7 +72,7 @@ elif option == 'No' and st.session_state['calc_df'] is not None:
 
 #               CALCULATIONS
 if st.session_state['calc_df'] is not None:
-    calc_transactions = [ClassTransaction(*row) for row in st.session_state['calc_df'].itertuples(index = False)]
+    calc_transactions = [Class_Transaction(*row) for row in st.session_state['calc_df'].itertuples(index = False)]
     profit_txt = []
     operator_charge = []
     for row in calc_transactions:
