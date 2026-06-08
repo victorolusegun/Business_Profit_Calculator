@@ -2,7 +2,7 @@ from datetime import datetime
 import streamlit as st
 from op_parser import ppay_parser, filter_txn
 from src import Transaction, Class_Transaction
-from wrangler import *
+from wrangler import dataframe, convert_dtypes
 
 #               APP CONFIGURATION
 st.set_page_config(page_title='POS Profit Calculator', page_icon=':money_with_wings:')

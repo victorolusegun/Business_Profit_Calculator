@@ -15,9 +15,6 @@ class Transaction:
             return 'Transfer'
         else:
             return 'Others'
-        
-    def rounding(self):
-        return round(self.amount, -2)
     
 class Class_Transaction(Transaction):
     def __init__(self, date, time, ref_id, amount, balance, tx_type):
